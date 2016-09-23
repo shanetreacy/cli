@@ -36,6 +36,12 @@ var _ = Describe("API Command", func() {
 		}
 	})
 
+  Context("when experimental is set to false", func() {
+	  It("uses the old API command"), func(){
+		
+		})
+	})
+
 	Context("when the API URL is not provided", func() {
 		var err error
 		JustBeforeEach(func() {

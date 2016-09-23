@@ -2,6 +2,7 @@ package v2
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"code.cloudfoundry.org/cli/actors/configactions"
@@ -38,6 +39,8 @@ func (cmd *ApiCommand) Setup(config commands.Config, ui commands.UI) error {
 }
 
 func (cmd *ApiCommand) Execute(args []string) error {
+	cmd.Main(os.Getenv("EXPERIMENTAL"), os.Args)
+
 	if cmd.Unset {
 		return cmd.ClearTarget()
 	}

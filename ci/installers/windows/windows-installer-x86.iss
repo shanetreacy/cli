@@ -12,7 +12,7 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Check: not IsAdminLoggedOn and NeedsAddPath(ExpandConstant('{app}'))
 
 [Files]
-Source: CF_SOURCE; DestDir: "{app}"
+Source: "cf.exe"; DestDir: "{app}"
 
 [Code]
 #include "common.iss"
