@@ -83,6 +83,42 @@ var _ = Describe("Config", func() {
 			})
 		})
 
+		Describe("AccessToken", func() {
+			var config *Config
+
+			BeforeEach(func() {
+				rawConfig := `{ "AccessToken":"some-token" }`
+				setConfig(homeDir, rawConfig)
+
+				var err error
+				config, err = LoadConfig()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(config).ToNot(BeNil())
+			})
+
+			It("returns fields directly from config", func() {
+				Expect(config.AccessToken()).To(Equal("some-token"))
+			})
+		})
+
+		Describe("RefreshToken", func() {
+			var config *Config
+
+			BeforeEach(func() {
+				rawConfig := `{ "RefreshToken":"some-token" }`
+				setConfig(homeDir, rawConfig)
+
+				var err error
+				config, err = LoadConfig()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(config).ToNot(BeNil())
+			})
+
+			It("returns fields directly from config", func() {
+				Expect(config.RefreshToken()).To(Equal("some-token"))
+			})
+		})
+
 		DescribeTable("Experimental",
 			func(envVal string, expected bool) {
 				rawConfig := fmt.Sprintf(`{}`)

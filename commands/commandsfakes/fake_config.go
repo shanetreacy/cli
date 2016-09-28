@@ -71,6 +71,24 @@ type FakeConfig struct {
 	targetReturns     struct {
 		result1 string
 	}
+	ExperimentalStub        func() bool
+	experimentalMutex       sync.RWMutex
+	experimentalArgsForCall []struct{}
+	experimentalReturns     struct {
+		result1 bool
+	}
+	AccessTokenStub        func() string
+	accessTokenMutex       sync.RWMutex
+	accessTokenArgsForCall []struct{}
+	accessTokenReturns     struct {
+		result1 string
+	}
+	RefreshTokenStub        func() string
+	refreshTokenMutex       sync.RWMutex
+	refreshTokenArgsForCall []struct{}
+	refreshTokenReturns     struct {
+		result1 string
+	}
 	TargetedOrganizationStub        func() configv3.Organization
 	targetedOrganizationMutex       sync.RWMutex
 	targetedOrganizationArgsForCall []struct{}
@@ -82,12 +100,6 @@ type FakeConfig struct {
 	targetedSpaceArgsForCall []struct{}
 	targetedSpaceReturns     struct {
 		result1 configv3.Space
-	}
-	ExperimentalStub        func() bool
-	experimentalMutex       sync.RWMutex
-	experimentalArgsForCall []struct{}
-	experimentalReturns     struct {
-		result1 bool
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
@@ -326,6 +338,81 @@ func (fake *FakeConfig) TargetReturns(result1 string) {
 	}{result1}
 }
 
+func (fake *FakeConfig) Experimental() bool {
+	fake.experimentalMutex.Lock()
+	fake.experimentalArgsForCall = append(fake.experimentalArgsForCall, struct{}{})
+	fake.recordInvocation("Experimental", []interface{}{})
+	fake.experimentalMutex.Unlock()
+	if fake.ExperimentalStub != nil {
+		return fake.ExperimentalStub()
+	} else {
+		return fake.experimentalReturns.result1
+	}
+}
+
+func (fake *FakeConfig) ExperimentalCallCount() int {
+	fake.experimentalMutex.RLock()
+	defer fake.experimentalMutex.RUnlock()
+	return len(fake.experimentalArgsForCall)
+}
+
+func (fake *FakeConfig) ExperimentalReturns(result1 bool) {
+	fake.ExperimentalStub = nil
+	fake.experimentalReturns = struct {
+		result1 bool
+	}{result1}
+}
+
+func (fake *FakeConfig) AccessToken() string {
+	fake.accessTokenMutex.Lock()
+	fake.accessTokenArgsForCall = append(fake.accessTokenArgsForCall, struct{}{})
+	fake.recordInvocation("AccessToken", []interface{}{})
+	fake.accessTokenMutex.Unlock()
+	if fake.AccessTokenStub != nil {
+		return fake.AccessTokenStub()
+	} else {
+		return fake.accessTokenReturns.result1
+	}
+}
+
+func (fake *FakeConfig) AccessTokenCallCount() int {
+	fake.accessTokenMutex.RLock()
+	defer fake.accessTokenMutex.RUnlock()
+	return len(fake.accessTokenArgsForCall)
+}
+
+func (fake *FakeConfig) AccessTokenReturns(result1 string) {
+	fake.AccessTokenStub = nil
+	fake.accessTokenReturns = struct {
+		result1 string
+	}{result1}
+}
+
+func (fake *FakeConfig) RefreshToken() string {
+	fake.refreshTokenMutex.Lock()
+	fake.refreshTokenArgsForCall = append(fake.refreshTokenArgsForCall, struct{}{})
+	fake.recordInvocation("RefreshToken", []interface{}{})
+	fake.refreshTokenMutex.Unlock()
+	if fake.RefreshTokenStub != nil {
+		return fake.RefreshTokenStub()
+	} else {
+		return fake.refreshTokenReturns.result1
+	}
+}
+
+func (fake *FakeConfig) RefreshTokenCallCount() int {
+	fake.refreshTokenMutex.RLock()
+	defer fake.refreshTokenMutex.RUnlock()
+	return len(fake.refreshTokenArgsForCall)
+}
+
+func (fake *FakeConfig) RefreshTokenReturns(result1 string) {
+	fake.RefreshTokenStub = nil
+	fake.refreshTokenReturns = struct {
+		result1 string
+	}{result1}
+}
+
 func (fake *FakeConfig) TargetedOrganization() configv3.Organization {
 	fake.targetedOrganizationMutex.Lock()
 	fake.targetedOrganizationArgsForCall = append(fake.targetedOrganizationArgsForCall, struct{}{})
@@ -376,31 +463,6 @@ func (fake *FakeConfig) TargetedSpaceReturns(result1 configv3.Space) {
 	}{result1}
 }
 
-func (fake *FakeConfig) Experimental() bool {
-	fake.experimentalMutex.Lock()
-	fake.experimentalArgsForCall = append(fake.experimentalArgsForCall, struct{}{})
-	fake.recordInvocation("Experimental", []interface{}{})
-	fake.experimentalMutex.Unlock()
-	if fake.ExperimentalStub != nil {
-		return fake.ExperimentalStub()
-	} else {
-		return fake.experimentalReturns.result1
-	}
-}
-
-func (fake *FakeConfig) ExperimentalCallCount() int {
-	fake.experimentalMutex.RLock()
-	defer fake.experimentalMutex.RUnlock()
-	return len(fake.experimentalArgsForCall)
-}
-
-func (fake *FakeConfig) ExperimentalReturns(result1 bool) {
-	fake.ExperimentalStub = nil
-	fake.experimentalReturns = struct {
-		result1 bool
-	}{result1}
-}
-
 func (fake *FakeConfig) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -422,12 +484,16 @@ func (fake *FakeConfig) Invocations() map[string][][]interface{} {
 	defer fake.setTokenInformationMutex.RUnlock()
 	fake.targetMutex.RLock()
 	defer fake.targetMutex.RUnlock()
+	fake.experimentalMutex.RLock()
+	defer fake.experimentalMutex.RUnlock()
+	fake.accessTokenMutex.RLock()
+	defer fake.accessTokenMutex.RUnlock()
+	fake.refreshTokenMutex.RLock()
+	defer fake.refreshTokenMutex.RUnlock()
 	fake.targetedOrganizationMutex.RLock()
 	defer fake.targetedOrganizationMutex.RUnlock()
 	fake.targetedSpaceMutex.RLock()
 	defer fake.targetedSpaceMutex.RUnlock()
-	fake.experimentalMutex.RLock()
-	defer fake.experimentalMutex.RUnlock()
 	return fake.invocations
 }
 

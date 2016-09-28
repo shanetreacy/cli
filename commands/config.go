@@ -15,7 +15,9 @@ type Config interface {
 	SetTargetInformation(api string, apiVersion string, auth string, loggregator string, doppler string, uaa string, routing string, skipSSLValidation bool)
 	SetTokenInformation(accessToken string, refreshToken string, sshOAuthClient string)
 	Target() string
+	Experimental() bool
+	AccessToken() string
+	RefreshToken() string
 	TargetedOrganization() configv3.Organization
 	TargetedSpace() configv3.Space
-	Experimental() bool
 }
