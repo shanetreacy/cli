@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Errors", func() {
+var _ = Describe("Translatable Errors", func() {
 	translateFunc := func(s string, vars ...interface{}) string {
 		return "translated " + s
 	}
@@ -40,6 +40,70 @@ var _ = Describe("Errors", func() {
 			It("returns the translated error", func() {
 				e := InvalidSSLCertError{}
 				Expect(e.Translate(translateFunc)).To(Equal("translated Invalid SSL Cert for {{.API}}\nTIP: Use 'cf api --skip-ssl-validation' to continue with an insecure API endpoint"))
+			})
+		})
+	})
+
+	Describe("NoAPISetError", func() {
+		Describe("Error", func() {
+			It("returns the error template", func() {
+				e := NoAPISetError{}
+				Expect(e).To(MatchError("No API endpoint set. Use '{{.LoginCommand}}' or '{{.ApiCommand}}' to target an endpoint."))
+			})
+		})
+
+		Describe("Translate", func() {
+			It("returns the translated error", func() {
+				e := NoAPISetError{}
+				Expect(e.Translate(translateFunc)).To(Equal("translated No API endpoint set. Use '{{.LoginCommand}}' or '{{.ApiCommand}}' to target an endpoint."))
+			})
+		})
+	})
+
+	Describe("NotLoggedInError", func() {
+		Describe("Error", func() {
+			It("returns the error template", func() {
+				e := NotLoggedInError{}
+				Expect(e).To(MatchError("Not logged in. Use '{{.LoginCommand}}' to log in."))
+			})
+		})
+
+		Describe("Translate", func() {
+			It("returns the translated error", func() {
+				e := NotLoggedInError{}
+				Expect(e.Translate(translateFunc)).To(Equal("translated Not logged in. Use '{{.LoginCommand}}' to log in."))
+			})
+		})
+	})
+
+	Describe("NoTargetedOrgError", func() {
+		Describe("Error", func() {
+			It("returns the error template", func() {
+				e := NoTargetedOrgError{}
+				Expect(e).To(MatchError("No org targeted. Use '{{.TargetCommand}}' to target an org."))
+			})
+		})
+
+		Describe("Translate", func() {
+			It("returns the translated error", func() {
+				e := NoTargetedOrgError{}
+				Expect(e.Translate(translateFunc)).To(Equal("translated No org targeted. Use '{{.TargetCommand}}' to target an org."))
+			})
+		})
+	})
+
+	Describe("NoTargetedSpaceError", func() {
+		Describe("Error", func() {
+			It("returns the error template", func() {
+				e := NoTargetedSpaceError{}
+				Expect(e).To(MatchError("No space targeted. Use '{{.TargetCommand}}' to target a space."))
+			})
+		})
+
+		Describe("Translate", func() {
+			It("returns the translated error", func() {
+				e := NoTargetedSpaceError{}
+				Expect(e.Translate(translateFunc)).To(Equal("translated No space targeted. Use '{{.TargetCommand}}' to target a space."))
 			})
 		})
 	})
