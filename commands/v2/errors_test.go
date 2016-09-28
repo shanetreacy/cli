@@ -107,4 +107,52 @@ var _ = Describe("Translatable Errors", func() {
 			})
 		})
 	})
+
+	Describe("AppNotFoundError", func() {
+		Describe("Error", func() {
+			It("returns the error template", func() {
+				e := AppNotFoundError{}
+				Expect(e).To(MatchError("App {{.AppName}} not found"))
+			})
+		})
+
+		Describe("Translate", func() {
+			It("returns the translated error", func() {
+				e := AppNotFoundError{}
+				Expect(e.Translate(translateFunc)).To(Equal("translated App {{.AppName}} not found"))
+			})
+		})
+	})
+
+	Describe("ServiceInstanceNotFoundError", func() {
+		Describe("Error", func() {
+			It("returns the error template", func() {
+				e := ServiceInstanceNotFoundError{}
+				Expect(e).To(MatchError("Service instance {{.ServiceInstance}} not found"))
+			})
+		})
+
+		Describe("Translate", func() {
+			It("returns the translated error", func() {
+				e := ServiceInstanceNotFoundError{}
+				Expect(e.Translate(translateFunc)).To(Equal("translated Service instance {{.ServiceInstance}} not found"))
+			})
+		})
+	})
+
+	Describe("ServiceBindingNotFoundError", func() {
+		Describe("Error", func() {
+			It("returns the error template", func() {
+				e := ServiceBindingNotFoundError{}
+				Expect(e).To(MatchError("Binding between {{.ServiceInstance}} and {{.AppName}} did not exist"))
+			})
+		})
+
+		Describe("Translate", func() {
+			It("returns the translated error", func() {
+				e := ServiceBindingNotFoundError{}
+				Expect(e.Translate(translateFunc)).To(Equal("translated Binding between {{.ServiceInstance}} and {{.AppName}} did not exist"))
+			})
+		})
+	})
 })

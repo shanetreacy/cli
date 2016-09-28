@@ -85,3 +85,47 @@ func (e NoTargetedSpaceError) Translate(translate func(string, ...interface{}) s
 		"TargetCommand": e.TargetCommand,
 	})
 }
+
+type AppNotFoundError struct {
+	AppName string
+}
+
+func (e AppNotFoundError) Error() string {
+	return "App {{.AppName}} not found"
+}
+
+func (e AppNotFoundError) Translate(translate func(string, ...interface{}) string) string {
+	return translate(e.Error(), map[string]interface{}{
+		"AppName": e.AppName,
+	})
+}
+
+type ServiceInstanceNotFoundError struct {
+	ServiceInstance string
+}
+
+func (e ServiceInstanceNotFoundError) Error() string {
+	return "Service instance {{.ServiceInstance}} not found"
+}
+
+func (e ServiceInstanceNotFoundError) Translate(translate func(string, ...interface{}) string) string {
+	return translate(e.Error(), map[string]interface{}{
+		"ServiceInstance": e.ServiceInstance,
+	})
+}
+
+type ServiceBindingNotFoundError struct {
+	AppName         string
+	ServiceInstance string
+}
+
+func (e ServiceBindingNotFoundError) Error() string {
+	return "Binding between {{.ServiceInstance}} and {{.AppName}} did not exist"
+}
+
+func (e ServiceBindingNotFoundError) Translate(translate func(string, ...interface{}) string) string {
+	return translate(e.Error(), map[string]interface{}{
+		"AppName":         e.AppName,
+		"ServiceInstance": e.ServiceInstance,
+	})
+}
