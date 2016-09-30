@@ -191,6 +191,12 @@ func (config *Config) Target() string {
 	return config.ConfigFile.Target
 }
 
+// SkipSSLValidation returns whether or not to skip SSL validation when
+// targeting an API endpoint
+func (config *Config) SkipSSLValidation() bool {
+	return config.ConfigFile.SkipSSLValidation
+}
+
 // AccessToken returns the access token for making authenticated API calls
 func (config *Config) AccessToken() string {
 	return config.ConfigFile.AccessToken
