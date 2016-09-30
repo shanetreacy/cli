@@ -1,7 +1,7 @@
-package v2_test
+package common_test
 
 import (
-	. "code.cloudfoundry.org/cli/commands/v2"
+	. "code.cloudfoundry.org/cli/commands/v2/common"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

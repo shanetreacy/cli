@@ -1,4 +1,6 @@
-package v2
+package common
+
+import "fmt"
 
 type APIRequestError struct {
 	Err error
@@ -29,8 +31,7 @@ func (e InvalidSSLCertError) Translate(translate func(string, ...interface{}) st
 }
 
 type NoAPISetError struct {
-	LoginCommand string
-	APICommand   string
+	BinaryName string
 }
 
 func (e NoAPISetError) Error() string {
@@ -39,13 +40,13 @@ func (e NoAPISetError) Error() string {
 
 func (e NoAPISetError) Translate(translate func(string, ...interface{}) string) string {
 	return translate(e.Error(), map[string]interface{}{
-		"LoginCommand": e.LoginCommand,
-		"ApiCommand":   e.APICommand,
+		"LoginCommand": fmt.Sprintf("%s login", e.BinaryName),
+		"ApiCommand":   fmt.Sprintf("%s api", e.BinaryName),
 	})
 }
 
 type NotLoggedInError struct {
-	LoginCommand string
+	BinaryName string
 }
 
 func (e NotLoggedInError) Error() string {
@@ -54,12 +55,12 @@ func (e NotLoggedInError) Error() string {
 
 func (e NotLoggedInError) Translate(translate func(string, ...interface{}) string) string {
 	return translate(e.Error(), map[string]interface{}{
-		"LoginCommand": e.LoginCommand,
+		"LoginCommand": fmt.Sprintf("%s login", e.BinaryName),
 	})
 }
 
 type NoTargetedOrgError struct {
-	TargetCommand string
+	BinaryName string
 }
 
 func (e NoTargetedOrgError) Error() string {
@@ -68,12 +69,12 @@ func (e NoTargetedOrgError) Error() string {
 
 func (e NoTargetedOrgError) Translate(translate func(string, ...interface{}) string) string {
 	return translate(e.Error(), map[string]interface{}{
-		"TargetCommand": e.TargetCommand,
+		"TargetCommand": fmt.Sprintf("%s login", e.BinaryName),
 	})
 }
 
 type NoTargetedSpaceError struct {
-	TargetCommand string
+	BinaryName string
 }
 
 func (e NoTargetedSpaceError) Error() string {
@@ -82,7 +83,7 @@ func (e NoTargetedSpaceError) Error() string {
 
 func (e NoTargetedSpaceError) Translate(translate func(string, ...interface{}) string) string {
 	return translate(e.Error(), map[string]interface{}{
-		"TargetCommand": e.TargetCommand,
+		"TargetCommand": fmt.Sprintf("%s login", e.BinaryName),
 	})
 }
 
