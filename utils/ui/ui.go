@@ -17,6 +17,7 @@ import (
 	"github.com/fatih/color"
 
 	"github.com/nicksnyder/go-i18n/i18n"
+	"github.com/vito/go-interact/interact"
 )
 
 const (
@@ -133,6 +134,13 @@ func (ui UI) DisplayNewline() {
 func (ui UI) DisplayPair(attribute string, formattedString string, keys ...map[string]interface{}) {
 	translatedValue := ui.translate(formattedString, ui.templateValuesFromKeys(keys))
 	fmt.Fprintf(ui.Out, "%s: %s\n", ui.translate(attribute), translatedValue)
+}
+
+// DisplayPrompt outputs the prompt, then waits for user input.
+func (ui UI) DisplayPrompt(prompt string) {
+	var response string
+	fullPrompt := fmt.Sprintf("%s%s\n", prompt, ui.colorize(">>", cyan, true))
+	interact.NewInteraction(fullPrompt).Resolve(interact.Required(&response))
 }
 
 // DisplayHelpHeader translates and then bolds the help header. Sends output to

@@ -152,6 +152,13 @@ var _ = Describe("UI", func() {
 		})
 	})
 
+	Describe("DisplayPrompt", func() {
+		It("bolds and colorizes arrows after the prompt", func() {
+			ui.DisplayPrompt("prompt")
+			Expect(ui.Out).To(Say("prompt\x1b\\[38;1m>>\x1b\\[0,"))
+		})
+	})
+
 	Describe("DisplayHelpHeader", func() {
 		It("bolds and colorizes the input string", func() {
 			ui.DisplayHelpHeader("some-text")
