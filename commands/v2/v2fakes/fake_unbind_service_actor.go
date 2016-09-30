@@ -4,212 +4,67 @@ package v2fakes
 import (
 	"sync"
 
-	"code.cloudfoundry.org/cli/actors"
-	"code.cloudfoundry.org/cli/api/cloudcontrollerv2"
+	"code.cloudfoundry.org/cli/actors/v2actions"
 	"code.cloudfoundry.org/cli/commands/v2"
 )
 
 type FakeUnbindServiceActor struct {
-	GetAppStub        func(query []cloudcontrollerv2.Query) (actors.Application, error)
-	getAppMutex       sync.RWMutex
-	getAppArgsForCall []struct {
-		query []cloudcontrollerv2.Query
+	UnbindServiceBySpaceStub        func(appName string, serviceInstanceName string, spaceGUID string) (v2actions.Warnings, error)
+	unbindServiceBySpaceMutex       sync.RWMutex
+	unbindServiceBySpaceArgsForCall []struct {
+		appName             string
+		serviceInstanceName string
+		spaceGUID           string
 	}
-	getAppReturns struct {
-		result1 actors.Application
+	unbindServiceBySpaceReturns struct {
+		result1 v2actions.Warnings
 		result2 error
-	}
-	GetServiceInstanceStub        func(query []cloudcontrollerv2.Query) (actors.ServiceInstance, error)
-	getServiceInstanceMutex       sync.RWMutex
-	getServiceInstanceArgsForCall []struct {
-		query []cloudcontrollerv2.Query
-	}
-	getServiceInstanceReturns struct {
-		result1 actors.ServiceInstance
-		result2 error
-	}
-	GetServiceBindingStub        func(query []cloudcontrollerv2.Query) (actors.ServiceBinding, error)
-	getServiceBindingMutex       sync.RWMutex
-	getServiceBindingArgsForCall []struct {
-		query []cloudcontrollerv2.Query
-	}
-	getServiceBindingReturns struct {
-		result1 actors.ServiceBinding
-		result2 error
-	}
-	UnbindServiceStub        func(serviceBindingGUID string) error
-	unbindServiceMutex       sync.RWMutex
-	unbindServiceArgsForCall []struct {
-		serviceBindingGUID string
-	}
-	unbindServiceReturns struct {
-		result1 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeUnbindServiceActor) GetApp(query []cloudcontrollerv2.Query) (actors.Application, error) {
-	var queryCopy []cloudcontrollerv2.Query
-	if query != nil {
-		queryCopy = make([]cloudcontrollerv2.Query, len(query))
-		copy(queryCopy, query)
-	}
-	fake.getAppMutex.Lock()
-	fake.getAppArgsForCall = append(fake.getAppArgsForCall, struct {
-		query []cloudcontrollerv2.Query
-	}{queryCopy})
-	fake.recordInvocation("GetApp", []interface{}{queryCopy})
-	fake.getAppMutex.Unlock()
-	if fake.GetAppStub != nil {
-		return fake.GetAppStub(query)
+func (fake *FakeUnbindServiceActor) UnbindServiceBySpace(appName string, serviceInstanceName string, spaceGUID string) (v2actions.Warnings, error) {
+	fake.unbindServiceBySpaceMutex.Lock()
+	fake.unbindServiceBySpaceArgsForCall = append(fake.unbindServiceBySpaceArgsForCall, struct {
+		appName             string
+		serviceInstanceName string
+		spaceGUID           string
+	}{appName, serviceInstanceName, spaceGUID})
+	fake.recordInvocation("UnbindServiceBySpace", []interface{}{appName, serviceInstanceName, spaceGUID})
+	fake.unbindServiceBySpaceMutex.Unlock()
+	if fake.UnbindServiceBySpaceStub != nil {
+		return fake.UnbindServiceBySpaceStub(appName, serviceInstanceName, spaceGUID)
 	} else {
-		return fake.getAppReturns.result1, fake.getAppReturns.result2
+		return fake.unbindServiceBySpaceReturns.result1, fake.unbindServiceBySpaceReturns.result2
 	}
 }
 
-func (fake *FakeUnbindServiceActor) GetAppCallCount() int {
-	fake.getAppMutex.RLock()
-	defer fake.getAppMutex.RUnlock()
-	return len(fake.getAppArgsForCall)
+func (fake *FakeUnbindServiceActor) UnbindServiceBySpaceCallCount() int {
+	fake.unbindServiceBySpaceMutex.RLock()
+	defer fake.unbindServiceBySpaceMutex.RUnlock()
+	return len(fake.unbindServiceBySpaceArgsForCall)
 }
 
-func (fake *FakeUnbindServiceActor) GetAppArgsForCall(i int) []cloudcontrollerv2.Query {
-	fake.getAppMutex.RLock()
-	defer fake.getAppMutex.RUnlock()
-	return fake.getAppArgsForCall[i].query
+func (fake *FakeUnbindServiceActor) UnbindServiceBySpaceArgsForCall(i int) (string, string, string) {
+	fake.unbindServiceBySpaceMutex.RLock()
+	defer fake.unbindServiceBySpaceMutex.RUnlock()
+	return fake.unbindServiceBySpaceArgsForCall[i].appName, fake.unbindServiceBySpaceArgsForCall[i].serviceInstanceName, fake.unbindServiceBySpaceArgsForCall[i].spaceGUID
 }
 
-func (fake *FakeUnbindServiceActor) GetAppReturns(result1 actors.Application, result2 error) {
-	fake.GetAppStub = nil
-	fake.getAppReturns = struct {
-		result1 actors.Application
+func (fake *FakeUnbindServiceActor) UnbindServiceBySpaceReturns(result1 v2actions.Warnings, result2 error) {
+	fake.UnbindServiceBySpaceStub = nil
+	fake.unbindServiceBySpaceReturns = struct {
+		result1 v2actions.Warnings
 		result2 error
 	}{result1, result2}
-}
-
-func (fake *FakeUnbindServiceActor) GetServiceInstance(query []cloudcontrollerv2.Query) (actors.ServiceInstance, error) {
-	var queryCopy []cloudcontrollerv2.Query
-	if query != nil {
-		queryCopy = make([]cloudcontrollerv2.Query, len(query))
-		copy(queryCopy, query)
-	}
-	fake.getServiceInstanceMutex.Lock()
-	fake.getServiceInstanceArgsForCall = append(fake.getServiceInstanceArgsForCall, struct {
-		query []cloudcontrollerv2.Query
-	}{queryCopy})
-	fake.recordInvocation("GetServiceInstance", []interface{}{queryCopy})
-	fake.getServiceInstanceMutex.Unlock()
-	if fake.GetServiceInstanceStub != nil {
-		return fake.GetServiceInstanceStub(query)
-	} else {
-		return fake.getServiceInstanceReturns.result1, fake.getServiceInstanceReturns.result2
-	}
-}
-
-func (fake *FakeUnbindServiceActor) GetServiceInstanceCallCount() int {
-	fake.getServiceInstanceMutex.RLock()
-	defer fake.getServiceInstanceMutex.RUnlock()
-	return len(fake.getServiceInstanceArgsForCall)
-}
-
-func (fake *FakeUnbindServiceActor) GetServiceInstanceArgsForCall(i int) []cloudcontrollerv2.Query {
-	fake.getServiceInstanceMutex.RLock()
-	defer fake.getServiceInstanceMutex.RUnlock()
-	return fake.getServiceInstanceArgsForCall[i].query
-}
-
-func (fake *FakeUnbindServiceActor) GetServiceInstanceReturns(result1 actors.ServiceInstance, result2 error) {
-	fake.GetServiceInstanceStub = nil
-	fake.getServiceInstanceReturns = struct {
-		result1 actors.ServiceInstance
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeUnbindServiceActor) GetServiceBinding(query []cloudcontrollerv2.Query) (actors.ServiceBinding, error) {
-	var queryCopy []cloudcontrollerv2.Query
-	if query != nil {
-		queryCopy = make([]cloudcontrollerv2.Query, len(query))
-		copy(queryCopy, query)
-	}
-	fake.getServiceBindingMutex.Lock()
-	fake.getServiceBindingArgsForCall = append(fake.getServiceBindingArgsForCall, struct {
-		query []cloudcontrollerv2.Query
-	}{queryCopy})
-	fake.recordInvocation("GetServiceBinding", []interface{}{queryCopy})
-	fake.getServiceBindingMutex.Unlock()
-	if fake.GetServiceBindingStub != nil {
-		return fake.GetServiceBindingStub(query)
-	} else {
-		return fake.getServiceBindingReturns.result1, fake.getServiceBindingReturns.result2
-	}
-}
-
-func (fake *FakeUnbindServiceActor) GetServiceBindingCallCount() int {
-	fake.getServiceBindingMutex.RLock()
-	defer fake.getServiceBindingMutex.RUnlock()
-	return len(fake.getServiceBindingArgsForCall)
-}
-
-func (fake *FakeUnbindServiceActor) GetServiceBindingArgsForCall(i int) []cloudcontrollerv2.Query {
-	fake.getServiceBindingMutex.RLock()
-	defer fake.getServiceBindingMutex.RUnlock()
-	return fake.getServiceBindingArgsForCall[i].query
-}
-
-func (fake *FakeUnbindServiceActor) GetServiceBindingReturns(result1 actors.ServiceBinding, result2 error) {
-	fake.GetServiceBindingStub = nil
-	fake.getServiceBindingReturns = struct {
-		result1 actors.ServiceBinding
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeUnbindServiceActor) UnbindService(serviceBindingGUID string) error {
-	fake.unbindServiceMutex.Lock()
-	fake.unbindServiceArgsForCall = append(fake.unbindServiceArgsForCall, struct {
-		serviceBindingGUID string
-	}{serviceBindingGUID})
-	fake.recordInvocation("UnbindService", []interface{}{serviceBindingGUID})
-	fake.unbindServiceMutex.Unlock()
-	if fake.UnbindServiceStub != nil {
-		return fake.UnbindServiceStub(serviceBindingGUID)
-	} else {
-		return fake.unbindServiceReturns.result1
-	}
-}
-
-func (fake *FakeUnbindServiceActor) UnbindServiceCallCount() int {
-	fake.unbindServiceMutex.RLock()
-	defer fake.unbindServiceMutex.RUnlock()
-	return len(fake.unbindServiceArgsForCall)
-}
-
-func (fake *FakeUnbindServiceActor) UnbindServiceArgsForCall(i int) string {
-	fake.unbindServiceMutex.RLock()
-	defer fake.unbindServiceMutex.RUnlock()
-	return fake.unbindServiceArgsForCall[i].serviceBindingGUID
-}
-
-func (fake *FakeUnbindServiceActor) UnbindServiceReturns(result1 error) {
-	fake.UnbindServiceStub = nil
-	fake.unbindServiceReturns = struct {
-		result1 error
-	}{result1}
 }
 
 func (fake *FakeUnbindServiceActor) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.getAppMutex.RLock()
-	defer fake.getAppMutex.RUnlock()
-	fake.getServiceInstanceMutex.RLock()
-	defer fake.getServiceInstanceMutex.RUnlock()
-	fake.getServiceBindingMutex.RLock()
-	defer fake.getServiceBindingMutex.RUnlock()
-	fake.unbindServiceMutex.RLock()
-	defer fake.unbindServiceMutex.RUnlock()
+	fake.unbindServiceBySpaceMutex.RLock()
+	defer fake.unbindServiceBySpaceMutex.RUnlock()
 	return fake.invocations
 }
 

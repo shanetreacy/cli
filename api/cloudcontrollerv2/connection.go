@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -12,22 +13,24 @@ import (
 	"github.com/tedsuo/rata"
 )
 
-type Connection struct {
-	HTTPClient       *http.Client
-	URL              string
-	requestGenerator *rata.RequestGenerator
-}
-
 type Request struct {
 	RequestName string
 	Params      rata.Params
-	// Query       url.Values
-	// Body        *bytes.Buffer
+	Query       url.Values
+
+	URI    string
+	Method string
 }
 
 type Response struct {
 	Result   interface{}
 	Warnings []string
+}
+
+type Connection struct {
+	HTTPClient       *http.Client
+	URL              string
+	requestGenerator *rata.RequestGenerator
 }
 
 func NewConnection(APIURL string, skipSSLValidation bool) *Connection {
@@ -62,18 +65,25 @@ func (connection *Connection) Make(passedRequest Request, passedResponse *Respon
 }
 
 func (connection *Connection) createHTTPRequest(passedRequest Request) (*http.Request, error) {
-	body := connection.getBody(passedRequest)
-
-	req, err := connection.requestGenerator.CreateRequest(
-		passedRequest.RequestName,
-		passedRequest.Params,
-		body,
-	)
+	var req *http.Request
+	var err error
+	if passedRequest.URI != "" {
+		req, err = http.NewRequest(
+			passedRequest.Method,
+			fmt.Sprintf("%s%s", connection.URL, passedRequest.URI),
+			&bytes.Buffer{},
+		)
+	} else {
+		req, err = connection.requestGenerator.CreateRequest(
+			passedRequest.RequestName,
+			passedRequest.Params,
+			&bytes.Buffer{},
+		)
+		req.URL.RawQuery = passedRequest.Query.Encode()
+	}
 	if err != nil {
 		return nil, err
 	}
-
-	// req.URL.RawQuery = passedRequest.Query.Encode()
 
 	// for h, vs := range passedRequest.Header {
 	// 	for _, v := range vs {
@@ -84,18 +94,7 @@ func (connection *Connection) createHTTPRequest(passedRequest Request) (*http.Re
 	return req, nil
 }
 
-func (connection *Connection) getBody(passedRequest Request) *bytes.Buffer {
-	// if passedRequest.Body != nil {
-	// 	if _, ok := passedRequest.Header["Content-Type"]; !ok {
-	// 		panic("You must pass a 'Content-Type' Header with a body")
-	// 	}
-	// 	return passedRequest.Body
-	// }
-
-	return &bytes.Buffer{}
-}
-
-func (_ *Connection) processRequestErrors(err error) error {
+func (*Connection) processRequestErrors(err error) error {
 	switch e := err.(type) {
 	case *url.Error:
 		if _, ok := e.Err.(x509.UnknownAuthorityError); ok {
@@ -121,43 +120,9 @@ func (connection *Connection) populateResponse(response *http.Response, passedRe
 		}
 	}
 
-	// if response.StatusCode < 200 || response.StatusCode >= 300 {
-	// 	body, _ := ioutil.ReadAll(response.Body)
-
-	// 	return UnexpectedResponseError{
-	// 		StatusCode: response.StatusCode,
-	// 		Status:     response.Status,
-	// 		Body:       string(body),
-	// 	}
-	// }
-
-	// if passedResponse == nil {
-	// 	return nil
-	// }
-
-	// switch response.StatusCode {
-	// case http.StatusNoContent:
-	// 	return nil
-	// case http.StatusCreated:
-	// 	passedResponse.Created = true
-	// }
-
-	// if passedResponse.Headers != nil {
-	// 	for k, v := range response.Header {
-	// 		(*passedResponse.Headers)[k] = v
-	// 	}
-	// }
-
-	// if returnResponseBody {
-	// 	passedResponse.Result = response.Body
-	// 	return nil
-	// }
-
-	// if passedResponse.Result == nil {
-	// 	return nil
-	// }
-
-	err = json.NewDecoder(response.Body).Decode(passedResponse.Result)
+	decoder := json.NewDecoder(response.Body)
+	decoder.UseNumber()
+	err = decoder.Decode(passedResponse.Result)
 	if err != nil {
 		return err
 	}
@@ -165,7 +130,7 @@ func (connection *Connection) populateResponse(response *http.Response, passedRe
 	return nil
 }
 
-func (_ *Connection) handleStatusCodes(response *http.Response) error {
+func (*Connection) handleStatusCodes(response *http.Response) error {
 	switch response.StatusCode {
 	case http.StatusNotFound:
 		return ResourceNotFoundError{}

@@ -10,6 +10,7 @@ import (
 	oldCmd "code.cloudfoundry.org/cli/cf/cmd"
 	"code.cloudfoundry.org/cli/commands"
 	"code.cloudfoundry.org/cli/commands/flags"
+	"code.cloudfoundry.org/cli/commands/v2/common"
 )
 
 //go:generate counterfeiter . APIConfigActor
@@ -121,10 +122,10 @@ func (_ ApiCommand) processURL(apiURL string) string {
 func (cmd ApiCommand) handleError(err error) error {
 	switch e := err.(type) {
 	case cloudcontrollerv2.UnverifiedServerError:
-		return InvalidSSLCertError{API: cmd.OptionalArgs.URL}
+		return common.InvalidSSLCertError{API: cmd.OptionalArgs.URL}
 
 	case cloudcontrollerv2.RequestError:
-		return APIRequestError{Err: e}
+		return common.APIRequestError{Err: e}
 	}
 	return err
 }

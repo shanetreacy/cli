@@ -24,7 +24,7 @@ var _ = Describe("Connection", func() {
 		connection = NewConnection(server.URL(), true)
 	})
 
-	Describe("Send", func() {
+	Describe("Make", func() {
 		Describe("GETs", func() {
 			BeforeEach(func() {
 				response := `{
@@ -33,29 +33,65 @@ var _ = Describe("Connection", func() {
 				}`
 				server.AppendHandlers(
 					CombineHandlers(
-						VerifyRequest("GET", "/v2/info"),
+						VerifyRequest("GET", "/v2/apps", "q=a:b&q=c:d"),
 						RespondWith(http.StatusOK, response),
 					),
 				)
 			})
 
-			It("sends the request to the server", func() {
-				request := Request{
-					RequestName: InfoRequest,
-				}
+			Context("when passing a RequestName", func() {
+				It("sends the request to the server", func() {
+					request := Request{
+						RequestName: AppsRequest,
+						Query: FormatQueryParameters([]Query{
+							{
+								Filter:   "a",
+								Operator: EqualOperator,
+								Value:    "b",
+							},
+							{
+								Filter:   "c",
+								Operator: EqualOperator,
+								Value:    "d",
+							},
+						}),
+					}
 
-				var body DummyResponse
-				response := Response{
-					Result: &body,
-				}
+					var body DummyResponse
+					response := Response{
+						Result: &body,
+					}
 
-				err := connection.Make(request, &response)
-				Expect(err).NotTo(HaveOccurred())
+					err := connection.Make(request, &response)
+					Expect(err).NotTo(HaveOccurred())
 
-				Expect(server.ReceivedRequests()).To(HaveLen(1))
+					Expect(server.ReceivedRequests()).To(HaveLen(1))
 
-				Expect(body.Val1).To(Equal("2.59.0"))
-				Expect(body.Val2).To(Equal(2))
+					Expect(body.Val1).To(Equal("2.59.0"))
+					Expect(body.Val2).To(Equal(2))
+				})
+			})
+
+			Context("when passing a URI", func() {
+				It("sends the request to the server", func() {
+					request := Request{
+						URI:    "/v2/apps?q=a:b&q=c:d",
+						Method: "GET",
+					}
+
+					var body DummyResponse
+					response := Response{
+						Result: &body,
+					}
+
+					err := connection.Make(request, &response)
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(server.ReceivedRequests()).To(HaveLen(1))
+
+					Expect(body.Val1).To(Equal("2.59.0"))
+					Expect(body.Val2).To(Equal(2))
+				})
 			})
 		})
 

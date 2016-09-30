@@ -1,19 +1,16 @@
 package v2
 
 import (
-	"code.cloudfoundry.org/cli/actors"
-	"code.cloudfoundry.org/cli/api/cloudcontrollerv2"
+	"code.cloudfoundry.org/cli/actors/v2actions"
 	"code.cloudfoundry.org/cli/commands"
 	"code.cloudfoundry.org/cli/commands/flags"
+	"code.cloudfoundry.org/cli/commands/v2/common"
 )
 
 //go:generate counterfeiter . UnbindServiceActor
 
 type UnbindServiceActor interface {
-	GetApp(query []cloudcontrollerv2.Query) (actors.Application, error)
-	GetServiceInstance(query []cloudcontrollerv2.Query) (actors.ServiceInstance, error)
-	GetServiceBinding(query []cloudcontrollerv2.Query) (actors.ServiceBinding, error)
-	UnbindService(serviceBindingGUID string) error
+	UnbindServiceBySpace(appName string, serviceInstanceName string, spaceGUID string) (v2actions.Warnings, error)
 }
 
 type UnbindServiceCommand struct {
@@ -29,104 +26,44 @@ type UnbindServiceCommand struct {
 func (cmd UnbindServiceCommand) Setup(config commands.Config, ui commands.UI) error {
 	cmd.UI = ui
 	cmd.Config = config
+
+	client, err := common.NewCloudControllerClient(config)
+	if err != nil {
+		return err
+	}
+	cmd.Actor = v2actions.NewActor(client)
+
 	return nil
 }
 
 func (cmd UnbindServiceCommand) Execute(args []string) error {
-	if cmd.Config.Target() == "" {
-		return NoAPISetError{
-			LoginCommand: "cf login",
-			APICommand:   "cf api",
-		}
+	err := common.CheckTarget(cmd.Config, true, true)
+	if err != nil {
+		return err
 	}
 
-	if cmd.Config.AccessToken() == "" && cmd.Config.RefreshToken() == "" {
-		return NotLoggedInError{
-			LoginCommand: "cf login",
-		}
-	}
-
-	if cmd.Config.TargetedOrganization().GUID == "" {
-		return NoTargetedOrgError{
-			TargetCommand: "cf target",
-		}
-	}
-
-	if cmd.Config.TargetedSpace().GUID == "" {
-		return NoTargetedSpaceError{
-			TargetCommand: "cf target",
-		}
-	}
-
-	org := cmd.Config.TargetedOrganization()
 	space := cmd.Config.TargetedSpace()
-
-	app, err := cmd.Actor.GetApp([]cloudcontrollerv2.Query{
-		cloudcontrollerv2.Query{
-			Filter:   "name",
-			Operator: ":",
-			Value:    cmd.RequiredArgs.AppName,
-		},
-		cloudcontrollerv2.Query{
-			Filter:   "space_guid",
-			Operator: ":",
-			Value:    space.GUID,
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	serviceInstance, err := cmd.Actor.GetServiceInstance([]cloudcontrollerv2.Query{
-		cloudcontrollerv2.Query{
-			Filter:   "name",
-			Operator: ":",
-			Value:    cmd.RequiredArgs.ServiceInstance,
-		},
-		cloudcontrollerv2.Query{
-			Filter:   "space_guid",
-			Operator: ":",
-			Value:    space.GUID,
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	serviceBinding, err := cmd.Actor.GetServiceBinding([]cloudcontrollerv2.Query{
-		cloudcontrollerv2.Query{
-			Filter:   "app_guid",
-			Operator: ":",
-			Value:    app.GUID,
-		},
-		cloudcontrollerv2.Query{
-			Filter:   "service_instance_guid",
-			Operator: ":",
-			Value:    serviceInstance.GUID,
-		},
-	})
-	if err != nil {
-		return err
-	}
-
 	user, err := cmd.Config.CurrentUser()
 	if err != nil {
 		return err //return translatable err?
 	}
 
 	cmd.UI.DisplayHeaderFlavorText("Unbinding app {{.AppName}} from service {{.ServiceInstance}} in org {{.Org}} / space {{.Space}} as {{.User}}...", map[string]interface{}{
-		"AppName":         app.Name,
-		"ServiceInstance": serviceInstance.Name,
-		"Org":             org.Name,
+		"AppName":         cmd.RequiredArgs.AppName,
+		"ServiceInstance": cmd.RequiredArgs.ServiceInstanceName,
+		"Org":             cmd.Config.TargetedOrganization().Name,
 		"Space":           space.Name,
 		"User":            user.Name,
 	})
-	cmd.UI.DisplayOK()
 
-	err = cmd.Actor.UnbindService(serviceBinding.GUID)
+	_, err = cmd.Actor.UnbindServiceBySpace(cmd.RequiredArgs.AppName, cmd.RequiredArgs.ServiceInstanceName, space.GUID)
 	if err != nil {
 		return err
 	}
+
+	cmd.UI.DisplayOK()
+
+	// if binding does not exist display binding d.n.e. message
 
 	return nil
 }
